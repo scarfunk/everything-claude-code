@@ -1,120 +1,120 @@
-# Eval Command
+# Eval 명령어
 
-Manage eval-driven development workflow.
+평가 기반 개발 워크플로우를 관리합니다.
 
-## Usage
+## 사용법
 
-`/eval [define|check|report|list] [feature-name]`
+`/eval [define|check|report|list] [기능-이름]`
 
-## Define Evals
+## Eval 정의
 
-`/eval define feature-name`
+`/eval define 기능-이름`
 
-Create a new eval definition:
+새 eval 정의 생성:
 
-1. Create `.claude/evals/feature-name.md` with template:
+1. 템플릿으로 `.claude/evals/기능-이름.md` 생성:
 
 ```markdown
-## EVAL: feature-name
-Created: $(date)
+## EVAL: 기능-이름
+생성일: $(date)
 
-### Capability Evals
-- [ ] [Description of capability 1]
-- [ ] [Description of capability 2]
+### 기능 Eval
+- [ ] [기능 1 설명]
+- [ ] [기능 2 설명]
 
-### Regression Evals
-- [ ] [Existing behavior 1 still works]
-- [ ] [Existing behavior 2 still works]
+### 회귀 Eval
+- [ ] [기존 동작 1이 여전히 작동]
+- [ ] [기존 동작 2가 여전히 작동]
 
-### Success Criteria
-- pass@3 > 90% for capability evals
-- pass^3 = 100% for regression evals
+### 성공 기준
+- 기능 eval에 대해 pass@3 > 90%
+- 회귀 eval에 대해 pass^3 = 100%
 ```
 
-2. Prompt user to fill in specific criteria
+2. 사용자에게 구체적 기준 작성 요청
 
-## Check Evals
+## Eval 체크
 
-`/eval check feature-name`
+`/eval check 기능-이름`
 
-Run evals for a feature:
+기능에 대한 eval 실행:
 
-1. Read eval definition from `.claude/evals/feature-name.md`
-2. For each capability eval:
-   - Attempt to verify criterion
-   - Record PASS/FAIL
-   - Log attempt in `.claude/evals/feature-name.log`
-3. For each regression eval:
-   - Run relevant tests
-   - Compare against baseline
-   - Record PASS/FAIL
-4. Report current status:
+1. `.claude/evals/기능-이름.md`에서 eval 정의 읽기
+2. 각 기능 eval에 대해:
+   - 기준 확인 시도
+   - 통과/실패 기록
+   - 시도를 `.claude/evals/기능-이름.log`에 기록
+3. 각 회귀 eval에 대해:
+   - 관련 테스트 실행
+   - 기준선과 비교
+   - 통과/실패 기록
+4. 현재 상태 보고:
 
 ```
-EVAL CHECK: feature-name
+EVAL 체크: 기능-이름
 ========================
-Capability: X/Y passing
-Regression: X/Y passing
-Status: IN PROGRESS / READY
+기능: X/Y 통과
+회귀: X/Y 통과
+상태: 진행 중 / 준비됨
 ```
 
-## Report Evals
+## Eval 보고서
 
-`/eval report feature-name`
+`/eval report 기능-이름`
 
-Generate comprehensive eval report:
+포괄적인 eval 보고서 생성:
 
 ```
-EVAL REPORT: feature-name
+EVAL 보고서: 기능-이름
 =========================
-Generated: $(date)
+생성일: $(date)
 
-CAPABILITY EVALS
+기능 EVAL
 ----------------
-[eval-1]: PASS (pass@1)
-[eval-2]: PASS (pass@2) - required retry
-[eval-3]: FAIL - see notes
+[eval-1]: 통과 (pass@1)
+[eval-2]: 통과 (pass@2) - 재시도 필요
+[eval-3]: 실패 - 노트 참조
 
-REGRESSION EVALS
+회귀 EVAL
 ----------------
-[test-1]: PASS
-[test-2]: PASS
-[test-3]: PASS
+[test-1]: 통과
+[test-2]: 통과
+[test-3]: 통과
 
-METRICS
+메트릭
 -------
-Capability pass@1: 67%
-Capability pass@3: 100%
-Regression pass^3: 100%
+기능 pass@1: 67%
+기능 pass@3: 100%
+회귀 pass^3: 100%
 
-NOTES
+노트
 -----
-[Any issues, edge cases, or observations]
+[모든 이슈, 엣지 케이스, 또는 관찰 사항]
 
-RECOMMENDATION
+권장사항
 --------------
-[SHIP / NEEDS WORK / BLOCKED]
+[출시 / 추가 작업 필요 / 차단됨]
 ```
 
-## List Evals
+## Eval 목록
 
 `/eval list`
 
-Show all eval definitions:
+모든 eval 정의 표시:
 
 ```
-EVAL DEFINITIONS
+EVAL 정의
 ================
-feature-auth      [3/5 passing] IN PROGRESS
-feature-search    [5/5 passing] READY
-feature-export    [0/4 passing] NOT STARTED
+feature-auth      [3/5 통과] 진행 중
+feature-search    [5/5 통과] 준비됨
+feature-export    [0/4 통과] 시작 안됨
 ```
 
-## Arguments
+## 인수
 
 $ARGUMENTS:
-- `define <name>` - Create new eval definition
-- `check <name>` - Run and check evals
-- `report <name>` - Generate full report
-- `list` - Show all evals
-- `clean` - Remove old eval logs (keeps last 10 runs)
+- `define <이름>` - 새 eval 정의 생성
+- `check <이름>` - eval 실행 및 체크
+- `report <이름>` - 전체 보고서 생성
+- `list` - 모든 eval 표시
+- `clean` - 오래된 eval 로그 제거 (최근 10회 실행 유지)

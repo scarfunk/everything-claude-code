@@ -1,64 +1,64 @@
 ---
 name: security-review
-description: Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist and patterns.
+description: 인증 추가, 사용자 입력 처리, 비밀 작업, API 엔드포인트 생성, 결제/민감한 기능 구현 시 이 스킬을 사용하세요. 포괄적인 보안 체크리스트와 패턴을 제공합니다.
 ---
 
-# Security Review Skill
+# 보안 리뷰 스킬
 
-This skill ensures all code follows security best practices and identifies potential vulnerabilities.
+이 스킬은 모든 코드가 보안 모범 사례를 따르고 잠재적 취약점을 식별하도록 보장합니다.
 
-## When to Activate
+## 활성화 시점
 
-- Implementing authentication or authorization
-- Handling user input or file uploads
-- Creating new API endpoints
-- Working with secrets or credentials
-- Implementing payment features
-- Storing or transmitting sensitive data
-- Integrating third-party APIs
+- 인증 또는 권한 구현 시
+- 사용자 입력 또는 파일 업로드 처리 시
+- 새 API 엔드포인트 생성 시
+- 비밀 또는 자격 증명 작업 시
+- 결제 기능 구현 시
+- 민감한 데이터 저장 또는 전송 시
+- 타사 API 통합 시
 
-## Security Checklist
+## 보안 체크리스트
 
-### 1. Secrets Management
+### 1. 비밀 관리
 
-#### ❌ NEVER Do This
+#### ❌ 절대 하지 말 것
 ```typescript
-const apiKey = "sk-proj-xxxxx"  // Hardcoded secret
-const dbPassword = "password123" // In source code
+const apiKey = "sk-proj-xxxxx"  // 하드코딩된 비밀
+const dbPassword = "password123" // 소스 코드에
 ```
 
-#### ✅ ALWAYS Do This
+#### ✅ 항상 할 것
 ```typescript
 const apiKey = process.env.OPENAI_API_KEY
 const dbUrl = process.env.DATABASE_URL
 
-// Verify secrets exist
+// 비밀이 존재하는지 확인
 if (!apiKey) {
-  throw new Error('OPENAI_API_KEY not configured')
+  throw new Error('OPENAI_API_KEY가 설정되지 않음')
 }
 ```
 
-#### Verification Steps
-- [ ] No hardcoded API keys, tokens, or passwords
-- [ ] All secrets in environment variables
-- [ ] `.env.local` in .gitignore
-- [ ] No secrets in git history
-- [ ] Production secrets in hosting platform (Vercel, Railway)
+#### 확인 단계
+- [ ] 하드코딩된 API 키, 토큰, 비밀번호 없음
+- [ ] 모든 비밀이 환경 변수에 있음
+- [ ] `.env.local`이 .gitignore에 있음
+- [ ] git 히스토리에 비밀 없음
+- [ ] 프로덕션 비밀이 호스팅 플랫폼에 있음 (Vercel, Railway)
 
-### 2. Input Validation
+### 2. 입력 검증
 
-#### Always Validate User Input
+#### 항상 사용자 입력 검증
 ```typescript
 import { z } from 'zod'
 
-// Define validation schema
+// 검증 스키마 정의
 const CreateUserSchema = z.object({
   email: z.string().email(),
   name: z.string().min(1).max(100),
   age: z.number().int().min(0).max(150)
 })
 
-// Validate before processing
+// 처리 전 검증
 export async function createUser(input: unknown) {
   try {
     const validated = CreateUserSchema.parse(input)
@@ -72,131 +72,111 @@ export async function createUser(input: unknown) {
 }
 ```
 
-#### File Upload Validation
+#### 파일 업로드 검증
 ```typescript
 function validateFileUpload(file: File) {
-  // Size check (5MB max)
+  // 크기 체크 (최대 5MB)
   const maxSize = 5 * 1024 * 1024
   if (file.size > maxSize) {
-    throw new Error('File too large (max 5MB)')
+    throw new Error('파일이 너무 큼 (최대 5MB)')
   }
 
-  // Type check
+  // 타입 체크
   const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']
   if (!allowedTypes.includes(file.type)) {
-    throw new Error('Invalid file type')
+    throw new Error('유효하지 않은 파일 타입')
   }
 
-  // Extension check
+  // 확장자 체크
   const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif']
   const extension = file.name.toLowerCase().match(/\.[^.]+$/)?.[0]
   if (!extension || !allowedExtensions.includes(extension)) {
-    throw new Error('Invalid file extension')
+    throw new Error('유효하지 않은 파일 확장자')
   }
 
   return true
 }
 ```
 
-#### Verification Steps
-- [ ] All user inputs validated with schemas
-- [ ] File uploads restricted (size, type, extension)
-- [ ] No direct use of user input in queries
-- [ ] Whitelist validation (not blacklist)
-- [ ] Error messages don't leak sensitive info
+### 3. SQL 인젝션 방지
 
-### 3. SQL Injection Prevention
-
-#### ❌ NEVER Concatenate SQL
+#### ❌ 절대 SQL을 연결하지 마세요
 ```typescript
-// DANGEROUS - SQL Injection vulnerability
+// 위험 - SQL 인젝션 취약점
 const query = `SELECT * FROM users WHERE email = '${userEmail}'`
 await db.query(query)
 ```
 
-#### ✅ ALWAYS Use Parameterized Queries
+#### ✅ 항상 파라미터화된 쿼리 사용
 ```typescript
-// Safe - parameterized query
+// 안전 - 파라미터화된 쿼리
 const { data } = await supabase
   .from('users')
   .select('*')
   .eq('email', userEmail)
 
-// Or with raw SQL
+// 또는 raw SQL로
 await db.query(
   'SELECT * FROM users WHERE email = $1',
   [userEmail]
 )
 ```
 
-#### Verification Steps
-- [ ] All database queries use parameterized queries
-- [ ] No string concatenation in SQL
-- [ ] ORM/query builder used correctly
-- [ ] Supabase queries properly sanitized
+### 4. 인증 & 권한
 
-### 4. Authentication & Authorization
-
-#### JWT Token Handling
+#### JWT 토큰 처리
 ```typescript
-// ❌ WRONG: localStorage (vulnerable to XSS)
+// ❌ 잘못된: localStorage (XSS에 취약)
 localStorage.setItem('token', token)
 
-// ✅ CORRECT: httpOnly cookies
+// ✅ 올바른: httpOnly 쿠키
 res.setHeader('Set-Cookie',
   `token=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=3600`)
 ```
 
-#### Authorization Checks
+#### 권한 체크
 ```typescript
 export async function deleteUser(userId: string, requesterId: string) {
-  // ALWAYS verify authorization first
+  // 항상 먼저 권한 확인
   const requester = await db.users.findUnique({
     where: { id: requesterId }
   })
 
   if (requester.role !== 'admin') {
     return NextResponse.json(
-      { error: 'Unauthorized' },
+      { error: '권한 없음' },
       { status: 403 }
     )
   }
 
-  // Proceed with deletion
+  // 삭제 진행
   await db.users.delete({ where: { id: userId } })
 }
 ```
 
-#### Row Level Security (Supabase)
+#### 행 수준 보안 (Supabase)
 ```sql
--- Enable RLS on all tables
+-- 모든 테이블에 RLS 활성화
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
--- Users can only view their own data
+-- 사용자는 자신의 데이터만 볼 수 있음
 CREATE POLICY "Users view own data"
   ON users FOR SELECT
   USING (auth.uid() = id);
 
--- Users can only update their own data
+-- 사용자는 자신의 데이터만 업데이트할 수 있음
 CREATE POLICY "Users update own data"
   ON users FOR UPDATE
   USING (auth.uid() = id);
 ```
 
-#### Verification Steps
-- [ ] Tokens stored in httpOnly cookies (not localStorage)
-- [ ] Authorization checks before sensitive operations
-- [ ] Row Level Security enabled in Supabase
-- [ ] Role-based access control implemented
-- [ ] Session management secure
+### 5. XSS 방지
 
-### 5. XSS Prevention
-
-#### Sanitize HTML
+#### HTML 살균
 ```typescript
 import DOMPurify from 'isomorphic-dompurify'
 
-// ALWAYS sanitize user-provided HTML
+// 항상 사용자 제공 HTML 살균
 function renderUserContent(html: string) {
   const clean = DOMPurify.sanitize(html, {
     ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p'],
@@ -206,111 +186,38 @@ function renderUserContent(html: string) {
 }
 ```
 
-#### Content Security Policy
-```typescript
-// next.config.js
-const securityHeaders = [
-  {
-    key: 'Content-Security-Policy',
-    value: `
-      default-src 'self';
-      script-src 'self' 'unsafe-eval' 'unsafe-inline';
-      style-src 'self' 'unsafe-inline';
-      img-src 'self' data: https:;
-      font-src 'self';
-      connect-src 'self' https://api.example.com;
-    `.replace(/\s{2,}/g, ' ').trim()
-  }
-]
-```
+### 6. 속도 제한
 
-#### Verification Steps
-- [ ] User-provided HTML sanitized
-- [ ] CSP headers configured
-- [ ] No unvalidated dynamic content rendering
-- [ ] React's built-in XSS protection used
-
-### 6. CSRF Protection
-
-#### CSRF Tokens
-```typescript
-import { csrf } from '@/lib/csrf'
-
-export async function POST(request: Request) {
-  const token = request.headers.get('X-CSRF-Token')
-
-  if (!csrf.verify(token)) {
-    return NextResponse.json(
-      { error: 'Invalid CSRF token' },
-      { status: 403 }
-    )
-  }
-
-  // Process request
-}
-```
-
-#### SameSite Cookies
-```typescript
-res.setHeader('Set-Cookie',
-  `session=${sessionId}; HttpOnly; Secure; SameSite=Strict`)
-```
-
-#### Verification Steps
-- [ ] CSRF tokens on state-changing operations
-- [ ] SameSite=Strict on all cookies
-- [ ] Double-submit cookie pattern implemented
-
-### 7. Rate Limiting
-
-#### API Rate Limiting
+#### API 속도 제한
 ```typescript
 import rateLimit from 'express-rate-limit'
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
-  message: 'Too many requests'
+  windowMs: 15 * 60 * 1000, // 15분
+  max: 100, // 윈도우당 100개 요청
+  message: '요청이 너무 많음'
 })
 
-// Apply to routes
+// 라우트에 적용
 app.use('/api/', limiter)
 ```
 
-#### Expensive Operations
-```typescript
-// Aggressive rate limiting for searches
-const searchLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // 10 requests per minute
-  message: 'Too many search requests'
-})
+### 7. 민감한 데이터 노출
 
-app.use('/api/search', searchLimiter)
+#### 로깅
+```typescript
+// ❌ 잘못된: 민감한 데이터 로깅
+console.log('사용자 로그인:', { email, password })
+console.log('결제:', { cardNumber, cvv })
+
+// ✅ 올바른: 민감한 데이터 수정
+console.log('사용자 로그인:', { email, userId })
+console.log('결제:', { last4: card.last4, userId })
 ```
 
-#### Verification Steps
-- [ ] Rate limiting on all API endpoints
-- [ ] Stricter limits on expensive operations
-- [ ] IP-based rate limiting
-- [ ] User-based rate limiting (authenticated)
-
-### 8. Sensitive Data Exposure
-
-#### Logging
+#### 오류 메시지
 ```typescript
-// ❌ WRONG: Logging sensitive data
-console.log('User login:', { email, password })
-console.log('Payment:', { cardNumber, cvv })
-
-// ✅ CORRECT: Redact sensitive data
-console.log('User login:', { email, userId })
-console.log('Payment:', { last4: card.last4, userId })
-```
-
-#### Error Messages
-```typescript
-// ❌ WRONG: Exposing internal details
+// ❌ 잘못된: 내부 세부사항 노출
 catch (error) {
   return NextResponse.json(
     { error: error.message, stack: error.stack },
@@ -318,177 +225,37 @@ catch (error) {
   )
 }
 
-// ✅ CORRECT: Generic error messages
+// ✅ 올바른: 일반적인 오류 메시지
 catch (error) {
-  console.error('Internal error:', error)
+  console.error('내부 오류:', error)
   return NextResponse.json(
-    { error: 'An error occurred. Please try again.' },
+    { error: '오류가 발생했습니다. 다시 시도해주세요.' },
     { status: 500 }
   )
 }
 ```
 
-#### Verification Steps
-- [ ] No passwords, tokens, or secrets in logs
-- [ ] Error messages generic for users
-- [ ] Detailed errors only in server logs
-- [ ] No stack traces exposed to users
+## 배포 전 보안 체크리스트
 
-### 9. Blockchain Security (Solana)
+모든 프로덕션 배포 전:
 
-#### Wallet Verification
-```typescript
-import { verify } from '@solana/web3.js'
-
-async function verifyWalletOwnership(
-  publicKey: string,
-  signature: string,
-  message: string
-) {
-  try {
-    const isValid = verify(
-      Buffer.from(message),
-      Buffer.from(signature, 'base64'),
-      Buffer.from(publicKey, 'base64')
-    )
-    return isValid
-  } catch (error) {
-    return false
-  }
-}
-```
-
-#### Transaction Verification
-```typescript
-async function verifyTransaction(transaction: Transaction) {
-  // Verify recipient
-  if (transaction.to !== expectedRecipient) {
-    throw new Error('Invalid recipient')
-  }
-
-  // Verify amount
-  if (transaction.amount > maxAmount) {
-    throw new Error('Amount exceeds limit')
-  }
-
-  // Verify user has sufficient balance
-  const balance = await getBalance(transaction.from)
-  if (balance < transaction.amount) {
-    throw new Error('Insufficient balance')
-  }
-
-  return true
-}
-```
-
-#### Verification Steps
-- [ ] Wallet signatures verified
-- [ ] Transaction details validated
-- [ ] Balance checks before transactions
-- [ ] No blind transaction signing
-
-### 10. Dependency Security
-
-#### Regular Updates
-```bash
-# Check for vulnerabilities
-npm audit
-
-# Fix automatically fixable issues
-npm audit fix
-
-# Update dependencies
-npm update
-
-# Check for outdated packages
-npm outdated
-```
-
-#### Lock Files
-```bash
-# ALWAYS commit lock files
-git add package-lock.json
-
-# Use in CI/CD for reproducible builds
-npm ci  # Instead of npm install
-```
-
-#### Verification Steps
-- [ ] Dependencies up to date
-- [ ] No known vulnerabilities (npm audit clean)
-- [ ] Lock files committed
-- [ ] Dependabot enabled on GitHub
-- [ ] Regular security updates
-
-## Security Testing
-
-### Automated Security Tests
-```typescript
-// Test authentication
-test('requires authentication', async () => {
-  const response = await fetch('/api/protected')
-  expect(response.status).toBe(401)
-})
-
-// Test authorization
-test('requires admin role', async () => {
-  const response = await fetch('/api/admin', {
-    headers: { Authorization: `Bearer ${userToken}` }
-  })
-  expect(response.status).toBe(403)
-})
-
-// Test input validation
-test('rejects invalid input', async () => {
-  const response = await fetch('/api/users', {
-    method: 'POST',
-    body: JSON.stringify({ email: 'not-an-email' })
-  })
-  expect(response.status).toBe(400)
-})
-
-// Test rate limiting
-test('enforces rate limits', async () => {
-  const requests = Array(101).fill(null).map(() =>
-    fetch('/api/endpoint')
-  )
-
-  const responses = await Promise.all(requests)
-  const tooManyRequests = responses.filter(r => r.status === 429)
-
-  expect(tooManyRequests.length).toBeGreaterThan(0)
-})
-```
-
-## Pre-Deployment Security Checklist
-
-Before ANY production deployment:
-
-- [ ] **Secrets**: No hardcoded secrets, all in env vars
-- [ ] **Input Validation**: All user inputs validated
-- [ ] **SQL Injection**: All queries parameterized
-- [ ] **XSS**: User content sanitized
-- [ ] **CSRF**: Protection enabled
-- [ ] **Authentication**: Proper token handling
-- [ ] **Authorization**: Role checks in place
-- [ ] **Rate Limiting**: Enabled on all endpoints
-- [ ] **HTTPS**: Enforced in production
-- [ ] **Security Headers**: CSP, X-Frame-Options configured
-- [ ] **Error Handling**: No sensitive data in errors
-- [ ] **Logging**: No sensitive data logged
-- [ ] **Dependencies**: Up to date, no vulnerabilities
-- [ ] **Row Level Security**: Enabled in Supabase
-- [ ] **CORS**: Properly configured
-- [ ] **File Uploads**: Validated (size, type)
-- [ ] **Wallet Signatures**: Verified (if blockchain)
-
-## Resources
-
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Next.js Security](https://nextjs.org/docs/security)
-- [Supabase Security](https://supabase.com/docs/guides/auth)
-- [Web Security Academy](https://portswigger.net/web-security)
+- [ ] **비밀**: 하드코딩된 비밀 없음, 모두 환경 변수에
+- [ ] **입력 검증**: 모든 사용자 입력 검증됨
+- [ ] **SQL 인젝션**: 모든 쿼리 파라미터화됨
+- [ ] **XSS**: 사용자 콘텐츠 살균됨
+- [ ] **CSRF**: 보호 활성화됨
+- [ ] **인증**: 적절한 토큰 처리
+- [ ] **권한**: 역할 체크 구현됨
+- [ ] **속도 제한**: 모든 엔드포인트에 활성화됨
+- [ ] **HTTPS**: 프로덕션에서 강제됨
+- [ ] **보안 헤더**: CSP, X-Frame-Options 설정됨
+- [ ] **오류 처리**: 오류에 민감한 데이터 없음
+- [ ] **로깅**: 민감한 데이터 로깅 안됨
+- [ ] **의존성**: 최신, 취약점 없음
+- [ ] **행 수준 보안**: Supabase에서 활성화됨
+- [ ] **CORS**: 적절히 설정됨
+- [ ] **파일 업로드**: 검증됨 (크기, 타입)
 
 ---
 
-**Remember**: Security is not optional. One vulnerability can compromise the entire platform. When in doubt, err on the side of caution.
+**기억하세요**: 보안은 선택사항이 아닙니다. 하나의 취약점이 전체 플랫폼을 손상시킬 수 있습니다. 확신이 없으면 조심하는 쪽으로 하세요.

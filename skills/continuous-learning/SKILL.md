@@ -1,23 +1,23 @@
 ---
 name: continuous-learning
-description: Automatically extract reusable patterns from Claude Code sessions and save them as learned skills for future use.
+description: Claude Code 세션에서 재사용 가능한 패턴을 자동으로 추출하고 향후 사용을 위해 학습된 스킬로 저장합니다.
 ---
 
-# Continuous Learning Skill
+# 지속적 학습 스킬
 
-Automatically evaluates Claude Code sessions on end to extract reusable patterns that can be saved as learned skills.
+각 세션 종료 시 Claude Code 세션을 자동으로 평가하여 학습된 스킬로 저장할 수 있는 재사용 가능한 패턴을 추출합니다.
 
-## How It Works
+## 작동 방식
 
-This skill runs as a **Stop hook** at the end of each session:
+이 스킬은 각 세션 종료 시 **Stop 훅**으로 실행됩니다:
 
-1. **Session Evaluation**: Checks if session has enough messages (default: 10+)
-2. **Pattern Detection**: Identifies extractable patterns from the session
-3. **Skill Extraction**: Saves useful patterns to `~/.claude/skills/learned/`
+1. **세션 평가**: 세션에 충분한 메시지가 있는지 확인 (기본값: 10+)
+2. **패턴 감지**: 세션에서 추출 가능한 패턴 식별
+3. **스킬 추출**: 유용한 패턴을 `~/.claude/skills/learned/`에 저장
 
-## Configuration
+## 설정
 
-Edit `config.json` to customize:
+`config.json`을 편집하여 커스터마이즈:
 
 ```json
 {
@@ -40,19 +40,19 @@ Edit `config.json` to customize:
 }
 ```
 
-## Pattern Types
+## 패턴 유형
 
-| Pattern | Description |
-|---------|-------------|
-| `error_resolution` | How specific errors were resolved |
-| `user_corrections` | Patterns from user corrections |
-| `workarounds` | Solutions to framework/library quirks |
-| `debugging_techniques` | Effective debugging approaches |
-| `project_specific` | Project-specific conventions |
+| 패턴 | 설명 |
+|------|------|
+| `error_resolution` | 특정 오류 해결 방법 |
+| `user_corrections` | 사용자 수정에서의 패턴 |
+| `workarounds` | 프레임워크/라이브러리 특이점에 대한 해결책 |
+| `debugging_techniques` | 효과적인 디버깅 접근법 |
+| `project_specific` | 프로젝트별 규칙 |
 
-## Hook Setup
+## 훅 설정
 
-Add to your `~/.claude/settings.json`:
+`~/.claude/settings.json`에 추가:
 
 ```json
 {
@@ -68,13 +68,13 @@ Add to your `~/.claude/settings.json`:
 }
 ```
 
-## Why Stop Hook?
+## 왜 Stop 훅인가?
 
-- **Lightweight**: Runs once at session end
-- **Non-blocking**: Doesn't add latency to every message
-- **Complete context**: Has access to full session transcript
+- **경량**: 세션 종료 시 한 번만 실행
+- **비차단**: 모든 메시지에 지연 추가 안함
+- **완전한 컨텍스트**: 전체 세션 트랜스크립트에 접근 가능
 
-## Related
+## 관련
 
-- [The Longform Guide](https://x.com/affaanmustafa/status/2014040193557471352) - Section on continuous learning
-- `/learn` command - Manual pattern extraction mid-session
+- [Longform 가이드](https://x.com/affaanmustafa/status/2014040193557471352) - 지속적 학습 섹션
+- `/learn` 명령어 - 세션 중간 수동 패턴 추출

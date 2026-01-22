@@ -1,27 +1,27 @@
-# Test Coverage
+# 테스트 커버리지
 
-Analyze test coverage and generate missing tests:
+테스트 커버리지 분석 및 누락된 테스트 생성:
 
-1. Run tests with coverage: npm test --coverage or pnpm test --coverage
+1. 커버리지와 함께 테스트 실행: npm test --coverage 또는 pnpm test --coverage
 
-2. Analyze coverage report (coverage/coverage-summary.json)
+2. 커버리지 보고서 분석 (coverage/coverage-summary.json)
 
-3. Identify files below 80% coverage threshold
+3. 80% 커버리지 임계값 미만 파일 식별
 
-4. For each under-covered file:
-   - Analyze untested code paths
-   - Generate unit tests for functions
-   - Generate integration tests for APIs
-   - Generate E2E tests for critical flows
+4. 커버리지 부족한 각 파일에 대해:
+   - 테스트되지 않은 코드 경로 분석
+   - 함수에 대한 유닛 테스트 생성
+   - API에 대한 통합 테스트 생성
+   - 중요 흐름에 대한 E2E 테스트 생성
 
-5. Verify new tests pass
+5. 새 테스트 통과 확인
 
-6. Show before/after coverage metrics
+6. 이전/이후 커버리지 메트릭 표시
 
-7. Ensure project reaches 80%+ overall coverage
+7. 프로젝트가 80%+ 전체 커버리지 도달 보장
 
-Focus on:
-- Happy path scenarios
-- Error handling
-- Edge cases (null, undefined, empty)
-- Boundary conditions
+다음에 집중:
+- 정상 경로 시나리오
+- 오류 처리
+- 엣지 케이스 (null, undefined, 빈 값)
+- 경계 조건

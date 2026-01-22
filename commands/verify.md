@@ -1,59 +1,59 @@
-# Verification Command
+# 검증 명령어
 
-Run comprehensive verification on current codebase state.
+현재 코드베이스 상태에 대한 포괄적인 검증 실행.
 
-## Instructions
+## 지침
 
-Execute verification in this exact order:
+정확히 이 순서로 검증 실행:
 
-1. **Build Check**
-   - Run the build command for this project
-   - If it fails, report errors and STOP
+1. **빌드 체크**
+   - 이 프로젝트의 빌드 명령어 실행
+   - 실패하면 오류 보고 후 중지
 
-2. **Type Check**
-   - Run TypeScript/type checker
-   - Report all errors with file:line
+2. **타입 체크**
+   - TypeScript/타입 체커 실행
+   - file:line으로 모든 오류 보고
 
-3. **Lint Check**
-   - Run linter
-   - Report warnings and errors
+3. **린트 체크**
+   - 린터 실행
+   - 경고 및 오류 보고
 
-4. **Test Suite**
-   - Run all tests
-   - Report pass/fail count
-   - Report coverage percentage
+4. **테스트 스위트**
+   - 모든 테스트 실행
+   - 통과/실패 수 보고
+   - 커버리지 백분율 보고
 
-5. **Console.log Audit**
-   - Search for console.log in source files
-   - Report locations
+5. **Console.log 감사**
+   - 소스 파일에서 console.log 검색
+   - 위치 보고
 
-6. **Git Status**
-   - Show uncommitted changes
-   - Show files modified since last commit
+6. **Git 상태**
+   - 커밋되지 않은 변경사항 표시
+   - 마지막 커밋 이후 수정된 파일 표시
 
-## Output
+## 출력
 
-Produce a concise verification report:
+간결한 검증 보고서 생성:
 
 ```
-VERIFICATION: [PASS/FAIL]
+검증: [통과/실패]
 
-Build:    [OK/FAIL]
-Types:    [OK/X errors]
-Lint:     [OK/X issues]
-Tests:    [X/Y passed, Z% coverage]
-Secrets:  [OK/X found]
-Logs:     [OK/X console.logs]
+빌드:    [OK/실패]
+타입:    [OK/X개 오류]
+린트:    [OK/X개 이슈]
+테스트:  [X/Y 통과, Z% 커버리지]
+비밀:    [OK/X개 발견]
+로그:    [OK/X개 console.log]
 
-Ready for PR: [YES/NO]
+PR 준비: [예/아니오]
 ```
 
-If any critical issues, list them with fix suggestions.
+치명적 이슈가 있으면 수정 제안과 함께 나열.
 
-## Arguments
+## 인수
 
-$ARGUMENTS can be:
-- `quick` - Only build + types
-- `full` - All checks (default)
-- `pre-commit` - Checks relevant for commits
-- `pre-pr` - Full checks plus security scan
+$ARGUMENTS는 다음일 수 있음:
+- `quick` - 빌드 + 타입만
+- `full` - 모든 체크 (기본값)
+- `pre-commit` - 커밋에 관련된 체크
+- `pre-pr` - 전체 체크 + 보안 스캔

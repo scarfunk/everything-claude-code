@@ -1,35 +1,35 @@
 ---
 name: strategic-compact
-description: Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction.
+description: 임의의 자동 압축 대신 논리적 간격에서 수동 컨텍스트 압축을 제안하여 작업 단계 전반에 걸쳐 컨텍스트를 보존합니다.
 ---
 
-# Strategic Compact Skill
+# 전략적 압축 스킬
 
-Suggests manual `/compact` at strategic points in your workflow rather than relying on arbitrary auto-compaction.
+임의의 자동 압축에 의존하지 않고 워크플로우의 전략적 지점에서 수동 `/compact`를 제안합니다.
 
-## Why Strategic Compaction?
+## 왜 전략적 압축인가?
 
-Auto-compaction triggers at arbitrary points:
-- Often mid-task, losing important context
-- No awareness of logical task boundaries
-- Can interrupt complex multi-step operations
+자동 압축은 임의의 지점에서 트리거됩니다:
+- 종종 작업 중간에, 중요한 컨텍스트 손실
+- 논리적 작업 경계에 대한 인식 없음
+- 복잡한 멀티스텝 작업 중단 가능
 
-Strategic compaction at logical boundaries:
-- **After exploration, before execution** - Compact research context, keep implementation plan
-- **After completing a milestone** - Fresh start for next phase
-- **Before major context shifts** - Clear exploration context before different task
+논리적 경계에서 전략적 압축:
+- **탐색 후, 실행 전** - 연구 컨텍스트 압축, 구현 계획 유지
+- **마일스톤 완료 후** - 다음 단계를 위한 새 시작
+- **주요 컨텍스트 전환 전** - 다른 작업 전에 탐색 컨텍스트 정리
 
-## How It Works
+## 작동 방식
 
-The `suggest-compact.sh` script runs on PreToolUse (Edit/Write) and:
+`suggest-compact.sh` 스크립트가 PreToolUse (Edit/Write)에서 실행되고:
 
-1. **Tracks tool calls** - Counts tool invocations in session
-2. **Threshold detection** - Suggests at configurable threshold (default: 50 calls)
-3. **Periodic reminders** - Reminds every 25 calls after threshold
+1. **도구 호출 추적** - 세션의 도구 호출 횟수
+2. **임계값 감지** - 설정 가능한 임계값(기본값: 50회 호출)에서 제안
+3. **주기적 알림** - 임계값 이후 25회 호출마다 알림
 
-## Hook Setup
+## 훅 설정
 
-Add to your `~/.claude/settings.json`:
+`~/.claude/settings.json`에 추가:
 
 ```json
 {
@@ -45,19 +45,19 @@ Add to your `~/.claude/settings.json`:
 }
 ```
 
-## Configuration
+## 설정
 
-Environment variables:
-- `COMPACT_THRESHOLD` - Tool calls before first suggestion (default: 50)
+환경 변수:
+- `COMPACT_THRESHOLD` - 첫 제안 전 도구 호출 수 (기본값: 50)
 
-## Best Practices
+## 모범 사례
 
-1. **Compact after planning** - Once plan is finalized, compact to start fresh
-2. **Compact after debugging** - Clear error-resolution context before continuing
-3. **Don't compact mid-implementation** - Preserve context for related changes
-4. **Read the suggestion** - The hook tells you *when*, you decide *if*
+1. **계획 후 압축** - 계획이 확정되면 새로 시작하기 위해 압축
+2. **디버깅 후 압축** - 계속하기 전에 오류 해결 컨텍스트 정리
+3. **구현 중간에 압축하지 마세요** - 관련 변경을 위해 컨텍스트 보존
+4. **제안 읽기** - 훅이 *언제*를 알려주고, *여부*는 당신이 결정
 
-## Related
+## 관련
 
-- [The Longform Guide](https://x.com/affaanmustafa/status/2014040193557471352) - Token optimization section
-- Memory persistence hooks - For state that survives compaction
+- [Longform 가이드](https://x.com/affaanmustafa/status/2014040193557471352) - 토큰 최적화 섹션
+- 메모리 지속성 훅 - 압축을 견디는 상태용
